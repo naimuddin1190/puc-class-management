@@ -1,0 +1,19 @@
+// Theme Toggle
+const toggle = document.getElementById("themeToggle");
+const body = document.body;
+
+// Check localStorage on load
+if (localStorage.getItem("theme") === "light") {
+  body.classList.add("light");
+  toggle.checked = true;
+}
+
+toggle.addEventListener("change", () => {
+  if (toggle.checked) {
+    body.classList.add("light");
+    localStorage.setItem("theme", "light");
+  } else {
+    body.classList.remove("light");
+    localStorage.setItem("theme", "dark");
+  }
+});

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PUC Section-D • 6th Semester • Fall 2025</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Tailwind + DaisyUI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ["Poppins", "sans-serif"],
+          },
+        },
+      },
+      plugins: [daisyui],
+    };
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body class="bg-base-100 font-poppins text-base-content">
+
+  <!-- NAVBAR -->
+  <nav class="navbar bg-base-200 sticky top-0 z-50 shadow">
+    <div class="container mx-auto flex justify-between items-center px-4">
+      <div class="flex items-center gap-2 text-xl font-bold">
+        <i class="fa-solid fa-graduation-cap text-primary"></i> PUC CSE-D
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#home" class="hover:text-primary">Home</a>
+        <a href="#routine" class="hover:text-primary">Routine</a>
+        <a href="#notice" class="hover:text-primary">Notice</a>
+        <a href="#contact" class="hover:text-primary">Contact</a>
+        <a href="resources.php" class="hover:text-primary">Resources</a>
+
+        <!-- Theme Toggle -->
+        <label class="swap swap-rotate">
+          <input type="checkbox" id="themeToggle"/>
+          <!-- sun -->
+          <svg class="swap-on fill-current w-6 h-6 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M5.64 17l-.71.71a1 1 0 01-1.41-1.41l.71-.71A1 1 0 015.64 17zm12.02 0a1 1 0 01.71-.29 1 1 0 01.7 1.71l-.7.71a1 1 0 01-1.41-1.41l.7-.71zM12 5a7 7 0 100 14 7 7 0 000-14z"/>
+          </svg>
+          <!-- moon -->
+          <svg class="swap-off fill-current w-6 h-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M21.64 13A9 9 0 1111 2.36 7 7 0 0021.64 13z"/>
+          </svg>
+        </label>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="home" class="container mx-auto flex flex-col md:flex-row items-center justify-between py-16 px-4">
+    <div>
+      <h1 class="text-3xl font-bold">Welcome to Section-D Portal</h1>
+      <p class="mt-2 text-lg">Premier University Chittagong • 6th Semester • Fall 2025</p>
+    </div>
+    <div class="text-center mt-6 md:mt-0">
+      <canvas id="analogClock" width="200" height="200" class="mx-auto"></canvas>
+      <div id="digitalClock" class="mt-3 text-xl font-semibold"></div>
+    </div>
+  </section>
+
+  <!-- ROUTINE -->
+  <section id="routine" class="container mx-auto py-12 px-4">
+    <h2 class="text-2xl font-bold mb-6">Class Routine</h2>
+    <div id="routineTable" class="overflow-x-auto"></div>
+
+    <!-- CR Routine Form -->
+    <div class="bg-base-200 p-4 rounded-xl mt-6">
+      <input type="password" id="crPinRoutine" placeholder="CR PIN" class="input input-bordered m-1"/>
+      <select id="daySelect" class="select select-bordered m-1">
+        <option>Saturday</option>
+        <option>Sunday</option>
+        <option>Monday</option>
+        <option>Tuesday</option>
+        <option>Wednesday</option>
+        <option>Thursday</option>
+        <option>Friday</option>
+      </select>
+      <input type="text" id="timeInput" placeholder="Time (e.g. 2:30-3:45 PM)" class="input input-bordered m-1"/>
+      <input type="text" id="courseInput" placeholder="Course Name" class="input input-bordered m-1"/>
+      <input type="text" id="roomInput" placeholder="Room No" class="input input-bordered m-1"/>
+      <button class="btn btn-primary m-1" onclick="addRoutine()">Add Class</button>
+    </div>
+
+    <button class="btn btn-accent mt-4"><i class="fa-solid fa-file-pdf mr-2"></i>Download PDF</button>
+  </section>
+
+  <!-- NOTICE -->
+  <section id="notice" class="container mx-auto py-12 px-4">
+    <h2 class="text-2xl font-bold mb-6">Important Notices</h2>
+    <ul id="noticeList" class="space-y-3"></ul>
+
+    <!-- CR Add Notice -->
+    <input type="password" id="crPin" placeholder="CR PIN" class="input input-bordered w-full mb-2"/>
+    <textarea id="newNotice" placeholder="Write new notice..." class="textarea textarea-bordered w-full mb-2"></textarea>
+    <button class="btn btn-primary" onclick="addNotice()">Add Notice</button>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="container mx-auto py-12 px-4">
+    <h2 class="text-2xl font-bold mb-6">Contact</h2>
+    <div id="contactInfo" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div>
+
+    <!-- CR Edit Contact -->
+    <div class="bg-base-200 p-4 rounded-xl mt-6">
+      <input type="password" id="crPinContact" placeholder="CR PIN" class="input input-bordered m-1"/>
+      <input type="text" id="contactRole" placeholder="Role (e.g. Class Representative)" class="input input-bordered m-1"/>
+      <input type="text" id="contactName" placeholder="Name" class="input input-bordered m-1"/>
+      <input type="text" id="contactDetail" placeholder="Phone/Email" class="input input-bordered m-1"/>
+      <button class="btn btn-primary m-1" onclick="addContact()">Add/Update Contact</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-base-200 text-center py-6">
+    <p class="mb-3">© 2025 Premier University Chittagong • CSE 42nd Batch</p>
+    <div class="flex justify-center gap-4 text-xl">
+      <a href="https://facebook.com" class="hover:text-primary"><i class="fab fa-facebook"></i></a>
+      <a href="https://instagram.com" class="hover:text-primary"><i class="fab fa-instagram"></i></a>
+      <a href="https://linkedin.com" class="hover:text-primary"><i class="fab fa-linkedin"></i></a>
+      <a href="https://chat.whatsapp.com/your-group-link" class="hover:text-primary"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <script src="script.js"></script>
+
+  <script>
+    // Theme toggle
+    const themeToggle = document.getElementById("themeToggle");
+    if (localStorage.getItem("theme") === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+      themeToggle.checked = false;
+    } else {
+      document.documentElement.setAttribute("data-theme", "dark");
+      themeToggle.checked = true;
+    }
+    themeToggle.addEventListener("change", function () {
+      if (this.checked) {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.documentElement.setAttribute("data-theme", "light");
+        localStorage.setItem("theme", "light");
+      }
+    });
+  </script>
+
+</body>
+</html>

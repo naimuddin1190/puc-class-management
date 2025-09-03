@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PUC Section-D • 6th Semester • Fall 2025</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Tailwind + DaisyUI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: { extend: {} },
+      plugins: [],
+    }
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+
+  <!-- Your Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="transition-all duration-300">
+
+  <!-- NAVBAR -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <div class="brand"><i class="fa-solid fa-graduation-cap"></i> PUC CSE-D</div>
+      <div class="menu">
+        <a href="#home">Home</a>
+        <a href="#routine">Routine</a>
+        <a href="#notice">Notice</a>
+        <a href="#contact">Contact</a>
+        <a href="resources.php">Resources</a>
+
+        <!-- 🌙/☀️ Dark-Light Toggle -->
+        <label class="swap swap-rotate ml-4 cursor-pointer">
+          <!-- this hidden checkbox controls the state -->
+          <input type="checkbox" id="theme-toggle" />
+
+          <!-- sun icon -->
+          <svg class="swap-on fill-yellow-400 w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64 17l-.71.71-1.41-1.41.71-.71..."/></svg>
+
+          <!-- moon icon -->
+          <svg class="swap-off fill-white w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.75 15.5a9 9 0 11-9-9..."/></svg>
+        </label>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO with Clocks -->
+  <section id="home" class="section container hero">
+    <div>
+      <h1>Welcome to Section-D Portal</h1>
+      <p>Premier University Chittagong • 6th Semester • Fall 2025</p>
+    </div>
+    <div class="clock-area">
+      <canvas id="analogClock" width="200" height="200"></canvas>
+      <div id="digitalClock"></div>
+    </div>
+  </section>
+
+  <!-- CLASS ROUTINE -->
+  <section id="routine" class="section container">
+    <h2>Class Routine</h2>
+    <div id="routineTable"></div>
+
+    <!-- CR Routine Form -->
+    <div class="admin-panel">
+      <input type="password" id="crPinRoutine" placeholder="CR PIN">
+      <select id="daySelect">
+        <option>Saturday</option>
+        <option>Sunday</option>
+        <option>Monday</option>
+        <option>Tuesday</option>
+        <option>Wednesday</option>
+        <option>Thursday</option>
+        <option>Friday</option>
+      </select>
+      <input type="text" id="timeInput" placeholder="Time (e.g. 2:30-3:45 PM)">
+      <input type="text" id="courseInput" placeholder="Course Name">
+      <input type="text" id="roomInput" placeholder="Room No">
+      <button class="btn" onclick="addRoutine()">Add Class</button>
+    </div>
+
+    <button class="btn" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+  </section>
+
+  <!-- IMPORTANT NOTICE -->
+  <section id="notice" class="section container">
+    <h2>Important Notices</h2>
+    <ul id="noticeList"></ul>
+    <!-- CR Add Notice -->
+    <input type="password" id="crPin" placeholder="CR PIN">
+    <textarea id="newNotice" placeholder="Write new notice..."></textarea>
+    <button class="btn" onclick="addNotice()">Add Notice</button>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section container">
+    <h2>Contact</h2>
+    <div id="contactInfo" class="contact-grid"></div>
+
+    <!-- CR Edit Contact -->
+    <div class="admin-panel">
+      <input type="password" id="crPinContact" placeholder="CR PIN">
+      <input type="text" id="contactRole" placeholder="Role (e.g. Class Representative)">
+      <input type="text" id="contactName" placeholder="Name">
+      <input type="text" id="contactDetail" placeholder="Phone/Email">
+      <button class="btn" onclick="addContact()">Add/Update Contact</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>© 2025 Premier University Chittagong • CSE 42nd Batch</p>
+    <div class="socials">
+      <a href="https://facebook.com"><i class="fab fa-facebook"></i></a>
+      <a href="https://instagram.com"><i class="fab fa-instagram"></i></a>
+      <a href="https://linkedin.com"><i class="fab fa-linkedin"></i></a>
+      <a href="https://chat.whatsapp.com/your-group-link"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <script src="script.js"></script>
+
+  <script>
+    // Theme toggle
+    const toggle = document.getElementById("theme-toggle");
+    const html = document.documentElement;
+
+    // Load saved theme
+    if(localStorage.getItem("theme") === "light"){
+      html.setAttribute("data-theme","light");
+      toggle.checked = true;
+    }
+
+    toggle.addEventListener("change", () => {
+      if(toggle.checked){
+        html.setAttribute("data-theme","light");
+        localStorage.setItem("theme","light");
+      } else {
+        html.setAttribute("data-theme","dark");
+        localStorage.setItem("theme","dark");
+      }
+    });
+  </script>
+</body>
+</html>
