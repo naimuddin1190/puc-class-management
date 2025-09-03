@@ -54,20 +54,39 @@ function drawHand(ctx, pos, length, width, color = "black") {
 }
 drawAnalogClock();
 
-// -------- ROUTINE --------
-let routineData = JSON.parse(localStorage.getItem("routine")) || {};
+// -------- ROUTINE (AJAX) --------
+let routineData = {};
+
+function fetchRoutine() {
+  fetch("routine.php?action=fetch")
+    .then((res) => res.json())
+    .then((data) => {
+      routineData = {};
+      data.forEach((r) => {
+        if (!routineData[r.day]) routineData[r.day] = [];
+        routineData[r.day].push({
+          time: r.time,
+          course: r.course,
+          room: r.room,
+          id: r.id,
+        });
+      });
+      renderRoutine();
+    });
+}
 
 function renderRoutine() {
   const container = document.getElementById("routineTable");
-  let html = "<table><tr><th>Day</th><th>Time</th><th>Course</th><th>Room</th><th>Action</th></tr>";
+  let html =
+    "<table><tr><th>Day</th><th>Time</th><th>Course</th><th>Room</th><th>Action</th></tr>";
   for (const day in routineData) {
     routineData[day].forEach((row, i) => {
       html += `<tr>
-        ${i===0 ? `<td rowspan='${routineData[day].length}'>${day}</td>` : ""}
+        ${i === 0 ? `<td rowspan='${routineData[day].length}'>${day}</td>` : ""}
         <td>${row.time}</td>
         <td>${row.course}</td>
         <td>${row.room}</td>
-        <td><button class="delete-btn" onclick="deleteRoutine('${day}', ${i})"><i class="fa-solid fa-trash"></i></button></td>
+        <td><button class="delete-btn" onclick="deleteRoutine(${row.id})"><i class="fa-solid fa-trash"></i></button></td>
       </tr>`;
     });
   }
@@ -77,117 +96,160 @@ function renderRoutine() {
 
 function addRoutine() {
   const pin = document.getElementById("crPinRoutine").value;
-  if (pin !== CR_PIN) return alert("Wrong PIN!");
   const day = document.getElementById("daySelect").value;
   const time = document.getElementById("timeInput").value;
   const course = document.getElementById("courseInput").value;
   const room = document.getElementById("roomInput").value;
+
   if (!time || !course || !room) return alert("Fill all fields!");
-  if (!routineData[day]) routineData[day] = [];
-  routineData[day].push({ time, course, room });
-  localStorage.setItem("routine", JSON.stringify(routineData));
-  renderRoutine();
+
+  fetch("routine.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `day=${day}&time=${time}&course=${course}&room=${room}&pin=${pin}`,
+  })
+    .then((res) => res.text())
+    .then((res) => {
+      alert(res);
+      fetchRoutine();
+    });
+
   document.getElementById("timeInput").value = "";
   document.getElementById("courseInput").value = "";
   document.getElementById("roomInput").value = "";
 }
 
-function deleteRoutine(day, index){
+function deleteRoutine(id) {
   const pin = prompt("Enter CR PIN to delete class:");
-  if(pin !== CR_PIN) return alert("Only CR can delete!");
-  if(!confirm("Are you sure to delete this class?")) return;
-  routineData[day].splice(index,1);
-  if(routineData[day].length===0) delete routineData[day];
-  localStorage.setItem("routine", JSON.stringify(routineData));
-  renderRoutine();
+  if (!pin) return;
+  fetch(`routine.php?delete_id=${id}&pin=${pin}`)
+    .then((res) => res.text())
+    .then((res) => {
+      alert(res);
+      fetchRoutine();
+    });
 }
-renderRoutine();
 
 function downloadPDF() {
   const element = document.getElementById("routineTable");
   html2pdf().from(element).save("Routine.pdf");
 }
+fetchRoutine();
 
-// -------- NOTICES --------
-let notices = JSON.parse(localStorage.getItem("notices")) || [];
-function saveNotices() {
-  localStorage.setItem("notices", JSON.stringify(notices));
+// -------- NOTICES (AJAX) --------
+let notices = [];
+
+function fetchNotices() {
+  fetch("notice.php?action=fetch")
+    .then((res) => res.json())
+    .then((data) => {
+      notices = data;
+      renderNotices();
+    });
 }
+
 function renderNotices() {
   const noticeList = document.getElementById("noticeList");
   noticeList.innerHTML = "";
-  notices.forEach((n, index) => {
+  notices.forEach((n) => {
     const li = document.createElement("li");
     li.innerHTML = `
-      <small>${n.date}</small>
+      <small>${new Date(n.created_at).toLocaleString()}</small>
       <span>${n.text}</span>
-      <button class="delete-btn" onclick="deleteNotice(${index})">
+      <button class="delete-btn" onclick="deleteNotice(${n.id})">
         <i class="fa-solid fa-trash"></i>
       </button>
     `;
     noticeList.appendChild(li);
   });
 }
+
 function addNotice() {
   const pin = document.getElementById("crPin").value;
-  const newNotice = document.getElementById("newNotice").value;
-  if (pin === CR_PIN && newNotice) {
-    const now = new Date();
-    notices.unshift({ text: newNotice, date: now.toLocaleString() });
-    saveNotices();
-    renderNotices();
-    document.getElementById("newNotice").value = "";
-  } else {
-    alert("Wrong PIN or empty notice!");
-  }
+  const text = document.getElementById("newNotice").value;
+  if (!text) return alert("Empty notice!");
+  fetch("notice.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `text=${encodeURIComponent(text)}&pin=${pin}`,
+  })
+    .then((res) => res.text())
+    .then((res) => {
+      alert(res);
+      document.getElementById("newNotice").value = "";
+      fetchNotices();
+    });
 }
-function deleteNotice(index){
-  const pin = prompt("Enter CR PIN to delete notice:");
-  if(pin !== CR_PIN) return alert("Only CR can delete!");
-  if(!confirm("Delete this notice?")) return;
-  notices.splice(index, 1);
-  saveNotices();
-  renderNotices();
-}
-renderNotices();
 
-// -------- CONTACT --------
-let contacts = JSON.parse(localStorage.getItem("contacts")) || [
-  { role: "Class Representative", name: "Naim", detail: "01833-515057" },
-  { role: "Advisor", name: "Dr. XYZ", detail: "advisor@puc.ac.bd" }
-];
+function deleteNotice(id) {
+  const pin = prompt("Enter CR PIN to delete notice:");
+  if (!pin) return;
+  fetch(`notice.php?delete_id=${id}&pin=${pin}`)
+    .then((res) => res.text())
+    .then((res) => {
+      alert(res);
+      fetchNotices();
+    });
+}
+fetchNotices();
+
+// -------- CONTACTS (AJAX) --------
+let contacts = [];
+
+function fetchContacts() {
+  fetch("contacts.php?action=fetch")
+    .then((res) => res.json())
+    .then((data) => {
+      contacts = data;
+      renderContacts();
+    });
+}
+
 function renderContacts() {
   const container = document.getElementById("contactInfo");
   container.innerHTML = "";
-  contacts.forEach((c,index) => {
+  contacts.forEach((c) => {
     const div = document.createElement("div");
     div.className = "card";
     div.innerHTML = `<h3>${c.role}</h3>
       <p><i class="fa-solid fa-user"></i> ${c.name}</p>
       <p><i class="fa-solid fa-phone"></i> ${c.detail}</p>
-      <button class="delete-btn" onclick="deleteContact(${index})"><i class="fa-solid fa-trash"></i></button>
+      <button class="delete-btn" onclick="deleteContact(${c.id})"><i class="fa-solid fa-trash"></i></button>
     `;
     container.appendChild(div);
   });
 }
+
 function addContact() {
   const pin = document.getElementById("crPinContact").value;
-  if (pin !== CR_PIN) return alert("Wrong PIN!");
   const role = document.getElementById("contactRole").value;
   const name = document.getElementById("contactName").value;
   const detail = document.getElementById("contactDetail").value;
+
   if (!role || !name || !detail) return alert("Fill all fields!");
-  contacts = contacts.filter(c => c.role !== role);
-  contacts.push({ role, name, detail });
-  localStorage.setItem("contacts", JSON.stringify(contacts));
-  renderContacts();
+
+  fetch("contacts.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `role=${encodeURIComponent(role)}&name=${encodeURIComponent(
+      name
+    )}&detail=${encodeURIComponent(detail)}&pin=${pin}`,
+  })
+    .then((res) => res.text())
+    .then((res) => {
+      alert(res);
+      fetchContacts();
+    });
 }
-function deleteContact(index){
+
+function deleteContact(id) {
   const pin = prompt("Enter CR PIN to delete contact:");
-  if(pin !== CR_PIN) return alert("Only CR can delete!");
-  if(!confirm("Delete this contact?")) return;
-  contacts.splice(index,1);
-  localStorage.setItem("contacts", JSON.stringify(contacts));
-  renderContacts();
+  if (!pin) return;
+  fetch(`contacts.php?delete_id=${id}&pin=${pin}`)
+    .then((res) => res.text())
+    .then((res) => {
+      alert(res);
+      fetchContacts();
+    });
 }
-renderContacts();
+fetchContacts();
