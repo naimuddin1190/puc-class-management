@@ -119,7 +119,7 @@ mysqli_stmt_close($notice_stmt);
 <a href="index.html#notice">Notice</a>
 <a href="index.html#contact">Contact</a>
 <a href="resources.php" class="active">Resources</a>
-<a href="developer.php" class="active">Developer</a>
+<a href=".php" class="active">Developer</a>
 </div>
 </div>
 </nav>
